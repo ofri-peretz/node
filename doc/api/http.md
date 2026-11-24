@@ -4805,6 +4805,12 @@ Proxy URLs can use either HTTP or HTTPS protocols:
 * HTTPS proxy: `https://proxy.example.com:8080`
 * Proxy with authentication: `http://username:password@proxy.example.com:8080`
 
+The username and password are percent-decoded before they are sent to the
+proxy, so reserved characters in them, including `%`, must be
+percent-encoded. For example, the password `p%ss` is written as `p%25ss`.
+Credentials containing a `%` that does not start a valid percent-encoded
+sequence cause an [`ERR_PROXY_INVALID_CONFIG`][] error.
+
 ### `NO_PROXY` Format
 
 The `NO_PROXY` environment variable supports several formats:
@@ -4961,6 +4967,7 @@ const agent2 = new http.Agent({ proxyEnv: process.env });
 [`Agent`]: #class-httpagent
 [`Buffer.byteLength()`]: buffer.md#static-method-bufferbytelengthstring-encoding
 [`Duplex`]: stream.md#class-streamduplex
+[`ERR_PROXY_INVALID_CONFIG`]: errors.md#err_proxy_invalid_config
 [`HPE_HEADER_OVERFLOW`]: errors.md#hpe_header_overflow
 [`Headers`]: globals.md#class-headers
 [`TypeError`]: errors.md#class-typeerror

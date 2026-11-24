@@ -34,3 +34,26 @@ for (const testCase of testCases) {
     message: `Invalid proxy URL: ${testCase.proxyUrl}`,
   });
 }
+
+// Credentials with a '%' that is not a valid percent-encoded sequence used to
+// escape as a bare URIError from decodeURIComponent(). They should be reported
+// as ERR_PROXY_INVALID_CONFIG, and the message must not contain the credentials.
+const malformedCredentials = [
+  'http://user:p%ss@proxy.example.com:8080',
+  'http://us%zzer:pass@proxy.example.com:8080',
+  'http://user:%E0%A4%A@proxy.example.com:8080',
+];
+
+for (const proxyUrl of malformedCredentials) {
+  assert.throws(() => {
+    new http.Agent({
+      proxyEnv: {
+        HTTP_PROXY: proxyUrl,
+      },
+    });
+  }, {
+    code: 'ERR_PROXY_INVALID_CONFIG',
+    message: 'Invalid proxy URL: http://proxy.example.com:8080/ ' +
+      '(credentials contain malformed percent-encoding)',
+  });
+}
