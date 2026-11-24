@@ -31,6 +31,13 @@ const testResBody = 'response content\n';
       });
     }, (err) => err.code === 'ERR_INVALID_ARG_VALUE');
 
+    // A malformed value with many params must be rejected quickly.
+    assert.throws(() => {
+      res.writeEarlyHints({
+        link: '</styles.css>' + '; a='.repeat(40) + '"',
+      });
+    }, (err) => err.code === 'ERR_INVALID_ARG_VALUE');
+
     debug('Server sending full response...');
     res.end(testResBody);
     server.close();
